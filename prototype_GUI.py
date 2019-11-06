@@ -12,6 +12,7 @@ from kivy.properties import StringProperty
 from kivy.uix.image import Image
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
+from kivy.uix.dropdown import DropDown
 
 class FaceRecognitionApp(App):
     def build(self):
@@ -20,13 +21,20 @@ class FaceRecognitionApp(App):
         window = BoxLayout(orientation='vertical')
         image_panel = BoxLayout(orientation='horizontal')
 
-        percentage = Label(text="Match: n%",size_hint=(1,.1))
+        file_dd = DropDown(auto_width=False,width=400)
+        choosef_btn = Button(text="Choose file...", size_hint_y=None, height= 25, halign='left')
+        choosef_btn.text_size = (None,None)
+        choosef_btn.bind(on_release=lambda btn: file_dd.select(choosef_btn.text))
+        file_dd.add_widget(choosef_btn)
+
+        percentage = Label(text="Match: n%,",size_hint=(1,.1))
 
         nav_bar = StackLayout(orientation='lr-bt',size_hint=(1,.1))
         top_bar = StackLayout(orientation='lr-tb',size_hint=(1,.1))
         menu_bar = StackLayout(orientation='lr-tb',size_hint=(1,.05))
 
-        file_btn = Label(text="[u]F[/u]ile",size_hint=(.05,1),markup=True)
+        file_btn = Button(text="[u]F[/u]ile",size_hint=(.05,1),markup=True)
+        file_btn.bind(on_release=file_dd.open)
         help_btn = Label(text="[u]H[/u]elp",size_hint=(.05,1),markup=True)
 
         next_btn = Button(text="Next",size_hint=(1/3,1))

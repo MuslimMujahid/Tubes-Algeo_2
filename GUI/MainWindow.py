@@ -172,6 +172,7 @@ class Ui_MainWindow(object):
         self.actionQuit = QtWidgets.QAction(MainWindow)
         self.actionQuit.setMenuRole(QtWidgets.QAction.QuitRole)
         self.actionQuit.setObjectName("actionQuit")
+        self.actionQuit.triggered.connect(MainWindow.close)
 
         self.actionAbout = QtWidgets.QAction(MainWindow)
         self.actionAbout.setMenuRole(QtWidgets.QAction.AboutRole)

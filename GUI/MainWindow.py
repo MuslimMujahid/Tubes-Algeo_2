@@ -163,6 +163,7 @@ class Ui_MainWindow(object):
 
         self.actionOpen_Train_Folder = QtWidgets.QAction(MainWindow)
         self.actionOpen_Train_Folder.setObjectName("actionOpen_Train_Folder")
+        self.actionOpen_Train_Folder.triggered.connect(self.train_folder_open)
         
         self.actionPreferences = QtWidgets.QAction(MainWindow)
         self.actionPreferences.setMenuRole(QtWidgets.QAction.PreferencesRole)
@@ -199,9 +200,14 @@ class Ui_MainWindow(object):
     def file_open(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        input_image, _ = QFileDialog.getOpenFileName(None, "QFileDialog.getOpenFileNames()", "","All Files (*);;Python Files (*.py)", options=options)
+        input_image, _ = QFileDialog.getOpenFileName(None, "Select Image", "","All Files (*);;JPG Files (*.jpg)", options=options)
         if input_image:
             self.query_image.setPixmap(QtGui.QPixmap(input_image))
+    
+    def train_folder_open(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.ShowDirsOnly | QFileDialog.DontUseNativeDialog
+        train_folder = QFileDialog.getExistingDirectory(None, "Select Directory", "", options=options)
 
 
     def retranslateUi(self, MainWindow):

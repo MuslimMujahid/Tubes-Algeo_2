@@ -9,11 +9,22 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
-
+import PreferencesWindow
+import GUI_test
+import os
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
+    sample_image = []
+    if len(sample_image) > 0:
+        input_image = train_folder + sample_image[0]
+    else:
         input_image = "Blank.jpg"
+    result_idx = 0
+    result_image = []
+    train_folder = ""
+    mat =[]
+
+    def setupUi(self, MainWindow):
 
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(860, 720)
@@ -31,21 +42,24 @@ class Ui_MainWindow(object):
         self.query_image = QtWidgets.QLabel(self.query_frame)
         self.query_image.setGeometry(QtCore.QRect(0, 0, 360, 360))
         self.query_image.setText("")
-        self.query_image.setPixmap(QtGui.QPixmap(input_image))
+        self.query_image.setPixmap(QtGui.QPixmap(self.input_image))
         self.query_image.setScaledContents(True)
         self.query_image.setObjectName("query_image")
 
         self.next_btn = QtWidgets.QPushButton(self.centralwidget)
         self.next_btn.setGeometry(QtCore.QRect(710, 620, 90, 25))
         self.next_btn.setObjectName("next_btn")
+        self.next_btn.pressed.connect(self.next)
 
-        self.detail_btn = QtWidgets.QPushButton(self.centralwidget)
-        self.detail_btn.setGeometry(QtCore.QRect(390, 620, 90, 25))
-        self.detail_btn.setObjectName("detail_btn")
+        self.run_btn = QtWidgets.QPushButton(self.centralwidget)
+        self.run_btn.setGeometry(QtCore.QRect(390, 620, 90, 25))
+        self.run_btn.setObjectName("run_btn")
+        self.run_btn.pressed.connect(self.mainRun)
 
         self.prev_btn = QtWidgets.QPushButton(self.centralwidget)
         self.prev_btn.setGeometry(QtCore.QRect(60, 620, 90, 25))
         self.prev_btn.setObjectName("prev_btn")
+        self.prev_btn.pressed.connect(self.prev)
 
         self.thumbnail_result_frame = QtWidgets.QFrame(self.centralwidget)
         self.thumbnail_result_frame.setGeometry(QtCore.QRect(40, 460, 140, 140))
@@ -56,6 +70,7 @@ class Ui_MainWindow(object):
         self.thumb_image = QtWidgets.QLabel(self.thumbnail_result_frame)
         self.thumb_image.setGeometry(QtCore.QRect(0, 0, 140, 140))
         self.thumb_image.setText("")
+        self.thumb_image.setPixmap(QtGui.QPixmap(self.input_image))
         self.thumb_image.setScaledContents(True)
         self.thumb_image.setObjectName("thumb_image")
 
@@ -68,6 +83,7 @@ class Ui_MainWindow(object):
         self.thumb_image_2 = QtWidgets.QLabel(self.thumbnail_result_frame_2)
         self.thumb_image_2.setGeometry(QtCore.QRect(0, 0, 140, 140))
         self.thumb_image_2.setText("")
+        self.thumb_image_2.setPixmap(QtGui.QPixmap(self.input_image))
         self.thumb_image_2.setScaledContents(True)
         self.thumb_image_2.setObjectName("thumb_image_2")
         
@@ -80,6 +96,7 @@ class Ui_MainWindow(object):
         self.thumb_image_3 = QtWidgets.QLabel(self.thumbnail_result_frame_3)
         self.thumb_image_3.setGeometry(QtCore.QRect(0, 0, 140, 140))
         self.thumb_image_3.setText("")
+        self.thumb_image_3.setPixmap(QtGui.QPixmap(self.input_image))
         self.thumb_image_3.setScaledContents(True)
         self.thumb_image_3.setObjectName("thumb_image_3")
 
@@ -92,6 +109,7 @@ class Ui_MainWindow(object):
         self.thumb_image_4 = QtWidgets.QLabel(self.thumbnail_result_frame_4)
         self.thumb_image_4.setGeometry(QtCore.QRect(0, 0, 140, 140))
         self.thumb_image_4.setText("")
+        self.thumb_image_4.setPixmap(QtGui.QPixmap(self.input_image))
         self.thumb_image_4.setScaledContents(True)
         self.thumb_image_4.setObjectName("thumb_image_4")
 
@@ -104,6 +122,7 @@ class Ui_MainWindow(object):
         self.thumb_image_5 = QtWidgets.QLabel(self.thumbnail_result_frame_5)
         self.thumb_image_5.setGeometry(QtCore.QRect(0, 0, 140, 140))
         self.thumb_image_5.setText("")
+        self.thumb_image_5.setPixmap(QtGui.QPixmap(self.input_image))
         self.thumb_image_5.setScaledContents(True)
         self.thumb_image_5.setObjectName("thumb_image_5")
 
@@ -116,6 +135,7 @@ class Ui_MainWindow(object):
         self.main_result_image = QtWidgets.QLabel(self.main_result_frame)
         self.main_result_image.setGeometry(QtCore.QRect(0, 0, 360, 360))
         self.main_result_image.setText("")
+        self.main_result_image.setPixmap(QtGui.QPixmap(self.input_image))
         self.main_result_image.setScaledContents(True)
         self.main_result_image.setObjectName("main_result_image")
 
@@ -168,6 +188,7 @@ class Ui_MainWindow(object):
         self.actionPreferences = QtWidgets.QAction(MainWindow)
         self.actionPreferences.setMenuRole(QtWidgets.QAction.PreferencesRole)
         self.actionPreferences.setObjectName("actionPreferences")
+        # self.actionPreferences.triggered.connect(self.pref)
 
         self.actionQuit = QtWidgets.QAction(MainWindow)
         self.actionQuit.setMenuRole(QtWidgets.QAction.QuitRole)
@@ -198,24 +219,62 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    def next(self):
+        _translate = QtCore.QCoreApplication.translate
+        if len(self.result_image) - self.result_idx > 6 :
+            self.result_idx += 1
+            self.main_result_image.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder,self.result_image[self.result_idx])))
+            self.thumb_image.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 1])))
+            self.thumb_image_2.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 2])))
+            self.thumb_image_3.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 3])))
+            self.thumb_image_4.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 4])))
+            self.thumb_image_5.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 5])))
+            self.match_rating.setText(_translate("MainWindow", "Match: {:.2f}".format(1 - self.mat[self.result_idx])))
+            self.query_name.setText(_translate("MainWindow", ""))
+            self.main_result_name.setText(_translate("MainWindow", self.result_image[self.result_idx]))
+
+    
+    def prev(self):
+        _translate = QtCore.QCoreApplication.translate
+        if self.result_idx > 0 :
+            self.result_idx -= 1
+            self.main_result_image.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder,self.result_image[self.result_idx])))
+            self.thumb_image.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 1])))
+            self.thumb_image_2.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 2])))
+            self.thumb_image_3.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 3])))
+            self.thumb_image_4.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 4])))
+            self.thumb_image_5.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 5])))
+            self.match_rating.setText(_translate("MainWindow", "Match: {:.2f}".format(1 - self.mat[self.result_idx])))
+            self.query_name.setText(_translate("MainWindow", ""))
+            self.main_result_name.setText(_translate("MainWindow", self.result_image[self.result_idx]))
+
+    def mainRun(self):
+        self.sample_image,self.result_image,self.mat = GUI_test.run(self.train_folder)
+
+
     def file_open(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        input_image, _ = QFileDialog.getOpenFileName(None, "Select Image", "","All Files (*);;JPG Files (*.jpg)", options=options)
-        if input_image:
-            self.query_image.setPixmap(QtGui.QPixmap(input_image))
+        self.input_image, _ = QFileDialog.getOpenFileName(None, "Select Image", "","All Files (*);;JPG Files (*.jpg)", options=options)
+        if self.input_image:
+            self.query_image.setPixmap(QtGui.QPixmap(self.input_image))
     
     def train_folder_open(self):
         options = QFileDialog.Options()
         options |= QFileDialog.ShowDirsOnly | QFileDialog.DontUseNativeDialog
-        train_folder = QFileDialog.getExistingDirectory(None, "Select Directory", "", options=options)
+        self.train_folder = QFileDialog.getExistingDirectory(None, "Select Directory", "", options=options)
+    
+    def pref(self):
+        # prefWindow = QtWidgets.QMainWindow()
+        # PreferencesWindow.Ui_PreferencesWindow.setupUi(PreferencesWindow.Ui_PreferencesWindow,prefWindow)
+        PreferencesWindow.runPref()
 
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Face Recognition"))
         self.next_btn.setText(_translate("MainWindow", "Next"))
-        self.detail_btn.setText(_translate("MainWindow", "Detail"))
+        self.run_btn.setText(_translate("MainWindow", "Run"))
         self.prev_btn.setText(_translate("MainWindow", "Previous"))
         self.match_rating.setText(_translate("MainWindow", "Match: N%"))
         self.query_name.setText(_translate("MainWindow", "Aaron_Paul"))

@@ -8,6 +8,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QFileDialog
 
 
 class Ui_MainWindow(object):
@@ -30,7 +31,7 @@ class Ui_MainWindow(object):
         self.query_image = QtWidgets.QLabel(self.query_frame)
         self.query_image.setGeometry(QtCore.QRect(0, 0, 360, 360))
         self.query_image.setText("")
-        self.query_image.setPixmap(QtGui.QPixmap(input_name))
+        self.query_image.setPixmap(QtGui.QPixmap(input_image))
         self.query_image.setScaledContents(True)
         self.query_image.setObjectName("query_image")
 
@@ -157,8 +158,8 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.actionOpen_Image = QtWidgets.QAction(MainWindow)
-        self.actionOpen_Image.setCheckable(False)
         self.actionOpen_Image.setObjectName("actionOpen_Image")
+        self.actionOpen_Image.triggered.connect(self.file_open)
 
         self.actionOpen_Train_Folder = QtWidgets.QAction(MainWindow)
         self.actionOpen_Train_Folder.setObjectName("actionOpen_Train_Folder")
@@ -198,9 +199,9 @@ class Ui_MainWindow(object):
     def file_open(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        input_name, _ = QFileDialog.getOpenFileName(None, "QFileDialog.getOpenFileNames()", "","All Files (*);;Python Files (*.py)", options=options)
-        if input_name:
-            self.query_image.setPixmap(QtGui.QPixmap(input_name))
+        input_image, _ = QFileDialog.getOpenFileName(None, "QFileDialog.getOpenFileNames()", "","All Files (*);;Python Files (*.py)", options=options)
+        if input_image:
+            self.query_image.setPixmap(QtGui.QPixmap(input_image))
 
 
     def retranslateUi(self, MainWindow):

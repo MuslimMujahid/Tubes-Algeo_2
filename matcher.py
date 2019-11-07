@@ -9,37 +9,43 @@ import random
 import os
 import matplotlib.pyplot as plt
 
+def GaussianBlur(img):
+    img = cv2.GaussianBlur(img,(7,7),0)
+    return img
+
+def FaceRecognizion(img):
+    gray_img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    face_cascade = cv2.CascadeClassifier("../data/haarcascade_frontalface_alt.xml")
+    faces = face_cascade.detectMultiScale(img,scaleFactor=1.1,minNeighbors=5);
+
+    for x,y,w,h in faces:
+        if ( (h-y)*(w*x) > 2500 ):
+            img = img[y+60:y+h,x+20:x+w-20];
+            # img = cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
+    return img
+
+def read_image(image_path):
+    img = cv2.imread(image_path,cv2.IMREAD_COLOR)
+    img = FaceRecognizion(img)
+    img = GaussianBlur(img)
+    return img
+
 # Feature extractor
-def extract_features(image_path, vector_size=32):
-    # image = imread(image_path, mode="RGB")
-    image = cv2.imread(image_path,1)
-    image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-    image = cv2.cvtColor(image,cv2.COLOR_GRAY2RGB)
+def extract_features(img, vector_size=32):
+    img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     
-    try:
-        # Using KAZE, cause SIFT, ORB and other was moved to additional module
-        # which is adding addtional pain during install
-        alg = cv2.KAZE_create()
-        # Dinding image keypoints
-        kps = alg.detect(image)
-        # Getting first 32 of them. 
-        # Number of keypoints is varies depend on image size and color pallet
-        # Sorting them based on keypoint response value(bigger is better)
-        kps = sorted(kps, key=lambda x: -x.response)[:vector_size]
-        # computing descriptors vector
-        kps, dsc = alg.compute(image, kps)
-        # Flatten all of them in one big vector - our feature vector
-        dsc = dsc.flatten()
-        # Making descriptor of same size
-        # Descriptor vector size is 64
-        needed_size = (vector_size * 64)
-        if dsc.size < needed_size:
-            # if we have less the 32 descriptors then just adding zeros at the
-            # end of our feature vector
-            dsc = np.concatenate([dsc, np.zeros(needed_size - dsc.size)])
-    except cv2.error as e:
-        print ('Error: ', e)
+    orb = cv2.ORB_create()
+    kps = orb.detect(img,None)
+    kps = sorted(kps, key=lambda x: -x.response)[:vector_size]
+    kps, dsc = orb.compute(img,kps)
+    
+    if dsc is None:
         return None
+        
+    dsc = dsc.flatten()
+    needed_size = (vector_size * 64)
+    if dsc.size < needed_size:
+        dsc = np.concatenate([dsc, np.zeros(needed_size - dsc.size)]) 
 
     return dsc
 
@@ -56,20 +62,15 @@ class Matcher(object):
         self.matrix = np.array(self.matrix)
         self.names = np.array(self.names)
 
-    def cdist(self, vector):
-        # Menggunakan jarak euclidean
-        vd = []
-        for i in range(len(self.matrix)):
-            dq = 0
-            for j in range(len(vector)):
-                dq += (self.matrix[i][j] - vector[j])**2
-            vd.append(dq**.5)
-        v = np.array(vd)
-        return v.reshape(-1)
+    def cos_cdist(self, vector):
+        # getting cosine distance between search image and images database
+        v = vector.reshape(1,-1)
+        return scipy.spatial.distance.cdist(self.matrix, v, 'cosine').reshape(-1)
 
     def match(self, image_path, topn=5):
-        features = extract_features(image_path)
-        img_distances = self.cdist(features)
+        img = read_image(image_path)
+        features = extract_features(img)
+        img_distances = self.cos_cdist(features)
         # getting top 5 records
         nearest_ids = np.argsort(img_distances)[:topn].tolist()
         nearest_img_paths = self.names[nearest_ids].tolist()
@@ -77,7 +78,10 @@ class Matcher(object):
 
 def show_img(path):
     img = cv2.imread(path)
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    # plt.imshow(img)
     cv2.imshow(path,img)
+    print(img.shape)
 
 def run():
     sample_path = 'images/sample/'
@@ -87,20 +91,20 @@ def run():
 
     ma = Matcher('features.pck')
 
-    file = random.sample(sample,10) #ambil 10 foto acak dari sampel
-    for s in file:
+    for s in sample:
         print ('Query image ==========================================')
+        print('image : %s' % s)
         # show_img(s)
-        print('\n' + s + '\n')
-        print ('Result images ========================================')
         names, match = ma.match(s, topn=5)
-        print()
+        print ('Result images ========================================')
         for i in range(5):
             # we got cosine distance, less cosine distance between vectors
             # more they similar, thus we subtruct it from 1 to get match value
-            print (names[i], match[i])
+            print (f'Match {(1-match[i])} - {names[i]} - {i+1}') 
+            show_img(s)
             show_img(os.path.join(train_path, names[i]))
-        print()
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 

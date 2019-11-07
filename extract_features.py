@@ -8,43 +8,43 @@ from six.moves import cPickle as pickle
 import random
 import os
 
+def GaussianBlur(img):
+    img = cv2.GaussianBlur(img,(7,7),0)
+    return img
+
+def FaceRecognizion(img):
+    gray_img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    face_cascade = cv2.CascadeClassifier("data/haarcascade_frontalface_alt.xml")
+    faces = face_cascade.detectMultiScale(img,scaleFactor=1.1,minNeighbors=5);
+
+    for x,y,w,h in faces:
+        if ( (h-y)*(w*x) > 2500 ):
+            img = img[y+60:y+h,x+20:x+w-20];
+            # img = cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
+    return img
+
+def read_image(image_path):
+    img = cv2.imread(image_path,cv2.IMREAD_COLOR)
+    img = FaceRecognizion(img)
+    img = GaussianBlur(img)
+    return img
+
 # Feature extractor
-def extract_features(image_path, vector_size=32):
-    image = cv2.imread(image_path,1)
-    image = cv2.GaussianBlur(image,(3,3),0)
-    image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-    # g = 45
-    # w = 250
-    # for x in range(len(image)):
-    #     for y in range(len(image[x])):
-    #         if image[x][y] < g or image[x][y] > w:
-    #             image[x][y] = 0
-    image = cv2.cvtColor(image,cv2.COLOR_GRAY2RGB)
+def extract_features(img, vector_size=32):
+    img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     
-    try:
-        # Using KAZE, cause SIFT, ORB and other was moved to additional module
-        # which is adding addtional pain during install
-        alg = cv2.KAZE_create()
-        # Dinding image keypoints
-        kps = alg.detect(image)
-        # Getting first 32 of them. 
-        # Number of keypoints is varies depend on image size and color pallet
-        # Sorting them based on keypoint response value(bigger is better)
-        kps = sorted(kps, key=lambda x: -x.response)[:vector_size]
-        # computing descriptors vector
-        kps, dsc = alg.compute(image, kps)
-        # Flatten all of them in one big vector - our feature vector
-        dsc = dsc.flatten()
-        # Making descriptor of same size
-        # Descriptor vector size is 64
-        needed_size = (vector_size * 64)
-        if dsc.size < needed_size:
-            # if we have less the 32 descriptors then just adding zeros at the
-            # end of our feature vector
-            dsc = np.concatenate([dsc, np.zeros(needed_size - dsc.size)])
-    except cv2.error as e:
-        print ('Error: ', e)
+    orb = cv2.ORB_create()
+    kps = orb.detect(img,None)
+    kps = sorted(kps, key=lambda x: -x.response)[:vector_size]
+    kps, dsc = orb.compute(img,kps)
+    
+    if dsc is None:
         return None
+        
+    dsc = dsc.flatten()
+    needed_size = (vector_size * 64)
+    if dsc.size < needed_size:
+        dsc = np.concatenate([dsc, np.zeros(needed_size - dsc.size)]) 
 
     return dsc
 
@@ -54,10 +54,12 @@ def batch_extractor(images_path, pickled_db_path="features.pck"):
 
     result = {}
     for f in files:
-        print ('Extracting features from image %s' % f) 
+        print (f'Extracting features from image {f}',end=" ") 
+        img = read_image(f)
         name = f.split('/')[-1].lower()
-        result[name] = extract_features(f)
-    
+        result[name] = extract_features(img)
+        print('--- Extracting success ---')
+        
     # saving all our feature vectors in pickled file
     with open(pickled_db_path, 'wb') as fp:
         pickle.dump(result, fp)

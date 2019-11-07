@@ -9,7 +9,6 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
-import PreferencesWindow
 import GUI_test
 import os
 
@@ -19,10 +18,10 @@ class Ui_MainWindow(object):
     result_image = []
     train_folder = ""
     mat =[]
-    count = PreferencesWindow.Ui_PreferencesWindow.count
-    alg = PreferencesWindow.Ui_PreferencesWindow.alg
-    print(count)
-    print(alg)
+    MCount = 6
+    MAlg = 'Distance Euclidean'
+    # print(count)
+    # print(alg)
 
     def setupUi(self, MainWindow):
 
@@ -229,7 +228,6 @@ class Ui_MainWindow(object):
         if self.result_idx > 0 :
             self.result_idx -= 1
             self.update_image()
-            print(self.result_idx)
 
     def update_image(self):
         _translate = QtCore.QCoreApplication.translate
@@ -258,14 +256,7 @@ class Ui_MainWindow(object):
         self.main_result_name.setText(_translate("MainWindow", self.result_image[self.result_idx]))
 
     def mainRun(self):
-        self.result_image,self.mat = GUI_test.run(self.input_image, self.train_folder)
-        for i in range(6):
-            print(os.path.join(self.train_folder, self.result_image[self.result_idx + i]))
-        print(len(self.result_image))
-        print(len(self.mat))
-        print("asdsad")
-        print(self.train_folder)
-        print(self.result_image)
+        self.result_image,self.mat = GUI_test.run(self.input_image, self.train_folder, self.MAlg, self.MCount)
         self.update_image()
 
 
@@ -285,14 +276,9 @@ class Ui_MainWindow(object):
     
     def pref(self):
         self.PrefWindow = QtWidgets.QMainWindow()
-        self.ui = PreferencesWindow.Ui_PreferencesWindow()
-        self.ui.setupUi(self.PrefWindow)
+        self.ui = Ui_PreferencesWindow()
+        self.ui.setupUi(self.PrefWindow,self.MCount,self.MAlg)
         self.PrefWindow.show()
-
-        self.count = ui.count
-        self.alg = ui.alg
-        print(self.count)
-        print(self.alg)
 
 
     def retranslateUi(self, MainWindow):
@@ -303,7 +289,7 @@ class Ui_MainWindow(object):
         self.prev_btn.setText(_translate("MainWindow", "Previous"))
         self.match_rating.setText(_translate("MainWindow", "Match: "))
         self.query_name.setText(_translate("MainWindow", self.input_image))
-        self.main_result_name.setText(_translate("MainWindow", "Aaron_Paul"))
+        self.main_result_name.setText(_translate("MainWindow", ""))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuHelp.setTitle(_translate("MainWindow", "Help"))
         self.menuSetting.setTitle(_translate("MainWindow", "Settings"))
@@ -318,8 +304,84 @@ class Ui_MainWindow(object):
         self.actionAbout.setText(_translate("MainWindow", "About"))
         self.actionFace_Recognition_Help.setText(_translate("MainWindow", "Face Recognition Help"))
 
+class Ui_PreferencesWindow(object):
+    
+    def setupUi(self, PreferencesWindow, count, alg):
+        self.count = count;
+        self.alg = alg;
+    
+        PreferencesWindow.setObjectName("PreferencesWindow")
+        PreferencesWindow.resize(470, 500)
+        PreferencesWindow.setMinimumSize(QtCore.QSize(470, 500))
+        PreferencesWindow.setMaximumSize(QtCore.QSize(470, 500))
 
+        self.centralwidget = QtWidgets.QWidget(PreferencesWindow)
+        self.centralwidget.setObjectName("centralwidget")
 
+        self.count_result = QtWidgets.QSpinBox(self.centralwidget)
+        self.count_result.setGeometry(QtCore.QRect(290, 120, 140, 26))
+        self.count_result.setObjectName("count_result")
+
+        self.count_result_label = QtWidgets.QLabel(self.centralwidget)
+        self.count_result_label.setGeometry(QtCore.QRect(30, 120, 140, 26))
+        self.count_result_label.setObjectName("count_result_label")
+
+        self.algorithm_label = QtWidgets.QLabel(self.centralwidget)
+        self.algorithm_label.setGeometry(QtCore.QRect(30, 60, 80, 26))
+        self.algorithm_label.setObjectName("algorithm_label")
+
+        self.algorithm = QtWidgets.QComboBox(self.centralwidget)
+        self.algorithm.setGeometry(QtCore.QRect(190, 60, 240, 26))
+        self.algorithm.setEditable(False)
+        self.algorithm.setMaxVisibleItems(10)
+        self.algorithm.setSizeAdjustPolicy(QtWidgets.QComboBox.AdjustToMinimumContentsLength)
+        self.algorithm.setDuplicatesEnabled(False)
+        self.algorithm.setObjectName("algorithm")
+        self.algorithm.addItem("")
+        self.algorithm.addItem("")
+
+        self.apply_btn = QtWidgets.QPushButton(self.centralwidget)
+        self.apply_btn.setGeometry(QtCore.QRect(340, 430, 89, 25))
+        self.apply_btn.setObjectName("apply_btn")
+        self.apply_btn.pressed.connect(self.apply)
+        self.apply_btn.pressed.connect(PreferencesWindow.close)
+
+        PreferencesWindow.setCentralWidget(self.centralwidget)
+
+        self.menubar = QtWidgets.QMenuBar(PreferencesWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 470, 22))
+        self.menubar.setObjectName("menubar")
+
+        PreferencesWindow.setMenuBar(self.menubar)
+
+        self.statusbar = QtWidgets.QStatusBar(PreferencesWindow)
+        self.statusbar.setObjectName("statusbar")
+
+        PreferencesWindow.setStatusBar(self.statusbar)
+
+        self.retranslateUi(PreferencesWindow)
+        self.algorithm.setCurrentIndex(0)
+        QtCore.QMetaObject.connectSlotsByName(PreferencesWindow)
+
+    def apply(self):
+        Ui_MainWindow.MAlg = self.algorithm.currentText()
+        print(self.algorithm.currentText())
+        print(Ui_MainWindow.MAlg)
+
+    def retranslateUi(self, PreferencesWindow):
+        _translate = QtCore.QCoreApplication.translate
+        PreferencesWindow.setWindowTitle(_translate("PreferencesWindow", "Preferences"))
+        self.count_result_label.setText(_translate("PreferencesWindow", "Image Result"))
+        self.algorithm_label.setText(_translate("PreferencesWindow", "Algorithm"))
+        if self.alg == "Distance Euclidean":
+            self.algorithm.setCurrentText(_translate("PreferencesWindow", "Distance Euclidean"))
+            self.algorithm.setItemText(0, _translate("PreferencesWindow", "Distance Euclidean"))
+            self.algorithm.setItemText(1, _translate("PreferencesWindow", "Cosine Similarity"))
+        if self.alg == "Cosine Similarity":
+            self.algorithm.setCurrentText(_translate("PreferencesWindow", "Cosine Similarity"))
+            self.algorithm.setItemText(1, _translate("PreferencesWindow", "Distance Euclidean"))
+            self.algorithm.setItemText(0, _translate("PreferencesWindow", "Cosine Similarity"))
+        self.apply_btn.setText(_translate("PreferencesWindow", "Apply"))
 
 if __name__ == "__main__":
     import sys

@@ -20,7 +20,7 @@ def FaceRecognizion(img):
 
     for x,y,w,h in faces:
         if ( (h-y)*(w*x) > 2500 ):
-            img = img[y+60:y+h,x+20:x+w-20];
+            img = img[y+60:y+h,x+20:x+w-20]
             # img = cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
     return img
 
@@ -66,24 +66,38 @@ class Matcher(object):
         # getting cosine distance between search image and images database
         v = vector.reshape(1,-1)
         return scipy.spatial.distance.cdist(self.matrix, v, 'cosine').reshape(-1)
+    
+    def edist(self, vector):
+        # Menggunakan jarak euclidean
+        vd = []
+        for i in range(len(self.matrix)):
+            dq = 0
+            for j in range(len(vector)):
+                dq += (self.matrix[i][j] - vector[j])**2
+            vd.append(dq**.5)
+        v = np.array(vd)
+        return v.reshape(-1)
 
-    def match(self, image_path, topn=6):
+    def match(self, image_path, alg, topn=6):
         img = read_image(image_path)
         features = extract_features(img)
-        img_distances = self.cos_cdist(features)
+        if (alg == "Cosine Similarity"):
+            img_distances = self.cos_cdist(features)
+        elif (alg =="Distance Euclidean"):
+            img_distances = self.edist(features)
         # getting top 6 records
         nearest_ids = np.argsort(img_distances)[:topn].tolist()
         nearest_img_paths = self.names[nearest_ids].tolist()
         return nearest_img_paths, img_distances[nearest_ids].tolist()
 
-def run(sample_path, train_path):
+def run(sample_path, train_path, alg, count):
     files = [os.path.join(train_path, p) for p in sorted(os.listdir(train_path))]
     # getting 3 random images
     # sample = random.sample(files, 3)
 
     ma = Matcher('features.pck')
 
-    names, match = ma.match(sample_path, topn=6)
+    names, match = ma.match(sample_path, alg, topn=count)
 
     return names, match
 

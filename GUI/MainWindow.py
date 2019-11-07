@@ -19,6 +19,10 @@ class Ui_MainWindow(object):
     result_image = []
     train_folder = ""
     mat =[]
+    count = PreferencesWindow.Ui_PreferencesWindow.count
+    alg = PreferencesWindow.Ui_PreferencesWindow.alg
+    print(count)
+    print(alg)
 
     def setupUi(self, MainWindow):
 
@@ -82,7 +86,7 @@ class Ui_MainWindow(object):
         self.thumb_image_2.setPixmap(QtGui.QPixmap(self.input_image))
         self.thumb_image_2.setScaledContents(True)
         self.thumb_image_2.setObjectName("thumb_image_2")
-
+        
         self.thumbnail_result_frame_3 = QtWidgets.QFrame(self.centralwidget)
         self.thumbnail_result_frame_3.setGeometry(QtCore.QRect(360, 460, 140, 140))
         self.thumbnail_result_frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -162,7 +166,7 @@ class Ui_MainWindow(object):
 
         self.menuHelp = QtWidgets.QMenu(self.menubar)
         self.menuHelp.setObjectName("menuHelp")
-
+        
         self.menuSetting = QtWidgets.QMenu(self.menubar)
         self.menuSetting.setObjectName("menuSetting")
 
@@ -180,11 +184,11 @@ class Ui_MainWindow(object):
         self.actionOpen_Train_Folder = QtWidgets.QAction(MainWindow)
         self.actionOpen_Train_Folder.setObjectName("actionOpen_Train_Folder")
         self.actionOpen_Train_Folder.triggered.connect(self.train_folder_open)
-
+        
         self.actionPreferences = QtWidgets.QAction(MainWindow)
         self.actionPreferences.setMenuRole(QtWidgets.QAction.PreferencesRole)
         self.actionPreferences.setObjectName("actionPreferences")
-        # self.actionPreferences.triggered.connect(self.pref)
+        self.actionPreferences.triggered.connect(self.pref)
 
         self.actionQuit = QtWidgets.QAction(MainWindow)
         self.actionQuit.setMenuRole(QtWidgets.QAction.QuitRole)
@@ -194,13 +198,13 @@ class Ui_MainWindow(object):
         self.actionAbout = QtWidgets.QAction(MainWindow)
         self.actionAbout.setMenuRole(QtWidgets.QAction.AboutRole)
         self.actionAbout.setObjectName("actionAbout")
-
+        
         self.actionFace_Recognition_Help = QtWidgets.QAction(MainWindow)
         self.actionFace_Recognition_Help.setObjectName("actionFace_Recognition_Help")
 
         self.menuFile.addAction(self.actionOpen_Image)
         self.menuFile.addAction(self.actionOpen_Train_Folder)
-        self.menuFile.addSeparator()
+        self.menuFile.addSeparator()     
         self.menuFile.addAction(self.actionQuit)
 
         self.menuHelp.addAction(self.actionFace_Recognition_Help)
@@ -216,55 +220,79 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def next(self):
-        _translate = QtCore.QCoreApplication.translate
-        if len(self.result_image) - self.result_idx > 6 :
+        if len(self.result_image) - self.result_idx > 1 :
             self.result_idx += 1
-            self.main_result_image.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder,self.result_image[self.result_idx])))
-            self.thumb_image.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 1])))
-            self.thumb_image_2.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 2])))
-            self.thumb_image_3.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 3])))
-            self.thumb_image_4.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 4])))
-            self.thumb_image_5.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 5])))
-            self.match_rating.setText(_translate("MainWindow", "Match: {:.3f}".format(1 - self.mat[self.result_idx])))
-            self.query_name.setText(_translate("MainWindow", ""))
-            self.main_result_name.setText(_translate("MainWindow", self.result_image[self.result_idx]))
+            self.update_image()
 
-
+    
     def prev(self):
-        _translate = QtCore.QCoreApplication.translate
         if self.result_idx > 0 :
             self.result_idx -= 1
-            self.main_result_image.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder,self.result_image[self.result_idx])))
+            self.update_image()
+            print(self.result_idx)
+
+    def update_image(self):
+        _translate = QtCore.QCoreApplication.translate
+        self.main_result_image.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder,self.result_image[self.result_idx])))
+        if self.result_idx + 1 <= len(self.result_image) - 1 :
             self.thumb_image.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 1])))
+        else:
+            self.thumb_image.setPixmap(QtGui.QPixmap("Blank.jpg"))
+        if self.result_idx + 2 <= len(self.result_image) - 1 :
             self.thumb_image_2.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 2])))
+        else:
+            self.thumb_image_2.setPixmap(QtGui.QPixmap("Blank.jpg"))
+        if self.result_idx + 3 <= len(self.result_image) - 1 :
             self.thumb_image_3.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 3])))
+        else:
+            self.thumb_image_3.setPixmap(QtGui.QPixmap("Blank.jpg"))
+        if self.result_idx + 4 <= len(self.result_image) - 1 :
             self.thumb_image_4.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 4])))
+        else:
+            self.thumb_image_4.setPixmap(QtGui.QPixmap("Blank.jpg"))
+        if self.result_idx + 5 <= len(self.result_image) - 1 :
             self.thumb_image_5.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 5])))
-            self.match_rating.setText(_translate("MainWindow", "Match: {:.3f}".format(1 - self.mat[self.result_idx])))
-            self.query_name.setText(_translate("MainWindow", ""))
-            self.main_result_name.setText(_translate("MainWindow", self.result_image[self.result_idx]))
+        else:
+            self.thumb_image_5.setPixmap(QtGui.QPixmap("Blank.jpg"))
+        self.match_rating.setText(_translate("MainWindow", "Match: {:.3f}".format(1 - self.mat[self.result_idx])))
+        self.main_result_name.setText(_translate("MainWindow", self.result_image[self.result_idx]))
 
     def mainRun(self):
         self.result_image,self.mat = GUI_test.run(self.input_image, self.train_folder)
-        print("runned")
+        for i in range(6):
+            print(os.path.join(self.train_folder, self.result_image[self.result_idx + i]))
+        print(len(self.result_image))
+        print(len(self.mat))
+        print("asdsad")
+        print(self.train_folder)
+        print(self.result_image)
+        self.update_image()
 
 
     def file_open(self):
+        _translate = QtCore.QCoreApplication.translate
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         self.input_image, _ = QFileDialog.getOpenFileName(None, "Select Image", "","All Files (*);;JPG Files (*.jpg)", options=options)
         if self.input_image:
             self.query_image.setPixmap(QtGui.QPixmap(self.input_image))
-
+            self.query_name.setText(_translate("MainWindow", self.input_image))
+    
     def train_folder_open(self):
         options = QFileDialog.Options()
         options |= QFileDialog.ShowDirsOnly | QFileDialog.DontUseNativeDialog
         self.train_folder = QFileDialog.getExistingDirectory(None, "Select Directory", "", options=options)
-
+    
     def pref(self):
-        # prefWindow = QtWidgets.QMainWindow()
-        # PreferencesWindow.Ui_PreferencesWindow.setupUi(PreferencesWindow.Ui_PreferencesWindow,prefWindow)
-        PreferencesWindow.runPref()
+        self.PrefWindow = QtWidgets.QMainWindow()
+        self.ui = PreferencesWindow.Ui_PreferencesWindow()
+        self.ui.setupUi(self.PrefWindow)
+        self.PrefWindow.show()
+
+        self.count = ui.count
+        self.alg = ui.alg
+        print(self.count)
+        print(self.alg)
 
 
     def retranslateUi(self, MainWindow):
@@ -273,8 +301,8 @@ class Ui_MainWindow(object):
         self.next_btn.setText(_translate("MainWindow", "Next"))
         self.run_btn.setText(_translate("MainWindow", "Run"))
         self.prev_btn.setText(_translate("MainWindow", "Previous"))
-        self.match_rating.setText(_translate("MainWindow", "Match: N%"))
-        self.query_name.setText(_translate("MainWindow", "Aaron_Paul"))
+        self.match_rating.setText(_translate("MainWindow", "Match: "))
+        self.query_name.setText(_translate("MainWindow", self.input_image))
         self.main_result_name.setText(_translate("MainWindow", "Aaron_Paul"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuHelp.setTitle(_translate("MainWindow", "Help"))
@@ -282,11 +310,15 @@ class Ui_MainWindow(object):
         self.actionOpen_Image.setText(_translate("MainWindow", "Open Image..."))
         self.actionOpen_Image.setShortcut(_translate("MainWindow", "Ctrl+O"))
         self.actionOpen_Train_Folder.setText(_translate("MainWindow", "Open Train Folder..."))
+        self.actionOpen_Train_Folder.setShortcut(_translate("MainWindow", "Ctrl+A"))
         self.actionPreferences.setText(_translate("MainWindow", "Preferences.."))
+        self.actionPreferences.setShortcut(_translate("MainWindow", "Ctrl+W"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
         self.actionQuit.setShortcut(_translate("MainWindow", "Ctrl+Q"))
         self.actionAbout.setText(_translate("MainWindow", "About"))
         self.actionFace_Recognition_Help.setText(_translate("MainWindow", "Face Recognition Help"))
+
+
 
 
 if __name__ == "__main__":

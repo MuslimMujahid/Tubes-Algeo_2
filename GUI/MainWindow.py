@@ -85,7 +85,7 @@ class Ui_MainWindow(object):
         self.thumb_image_2.setPixmap(QtGui.QPixmap(self.input_image))
         self.thumb_image_2.setScaledContents(True)
         self.thumb_image_2.setObjectName("thumb_image_2")
-        
+
         self.thumbnail_result_frame_3 = QtWidgets.QFrame(self.centralwidget)
         self.thumbnail_result_frame_3.setGeometry(QtCore.QRect(360, 460, 140, 140))
         self.thumbnail_result_frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -165,7 +165,7 @@ class Ui_MainWindow(object):
 
         self.menuHelp = QtWidgets.QMenu(self.menubar)
         self.menuHelp.setObjectName("menuHelp")
-        
+
         self.menuSetting = QtWidgets.QMenu(self.menubar)
         self.menuSetting.setObjectName("menuSetting")
 
@@ -183,7 +183,7 @@ class Ui_MainWindow(object):
         self.actionOpen_Train_Folder = QtWidgets.QAction(MainWindow)
         self.actionOpen_Train_Folder.setObjectName("actionOpen_Train_Folder")
         self.actionOpen_Train_Folder.triggered.connect(self.train_folder_open)
-        
+
         self.actionPreferences = QtWidgets.QAction(MainWindow)
         self.actionPreferences.setMenuRole(QtWidgets.QAction.PreferencesRole)
         self.actionPreferences.setObjectName("actionPreferences")
@@ -197,13 +197,13 @@ class Ui_MainWindow(object):
         self.actionAbout = QtWidgets.QAction(MainWindow)
         self.actionAbout.setMenuRole(QtWidgets.QAction.AboutRole)
         self.actionAbout.setObjectName("actionAbout")
-        
+
         self.actionFace_Recognition_Help = QtWidgets.QAction(MainWindow)
         self.actionFace_Recognition_Help.setObjectName("actionFace_Recognition_Help")
 
         self.menuFile.addAction(self.actionOpen_Image)
         self.menuFile.addAction(self.actionOpen_Train_Folder)
-        self.menuFile.addSeparator()     
+        self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
 
         self.menuHelp.addAction(self.actionFace_Recognition_Help)
@@ -223,7 +223,7 @@ class Ui_MainWindow(object):
             self.result_idx += 1
             self.update_image()
 
-    
+
     def prev(self):
         if self.result_idx > 0 :
             self.result_idx -= 1
@@ -272,12 +272,12 @@ class Ui_MainWindow(object):
         if self.input_image:
             self.query_image.setPixmap(QtGui.QPixmap(self.input_image))
             self.query_name.setText(_translate("MainWindow", self.input_image))
-    
+
     def train_folder_open(self):
         options = QFileDialog.Options()
         options |= QFileDialog.ShowDirsOnly | QFileDialog.DontUseNativeDialog
         self.train_folder = QFileDialog.getExistingDirectory(None, "Select Directory", "", options=options)
-    
+
     def pref(self):
         self.PrefWindow = QtWidgets.QMainWindow()
         self.ui = Ui_PreferencesWindow()
@@ -309,11 +309,11 @@ class Ui_MainWindow(object):
         self.actionFace_Recognition_Help.setText(_translate("MainWindow", "Face Recognition Help"))
 
 class Ui_PreferencesWindow(object):
-    
+
     def setupUi(self, PreferencesWindow, count, alg):
         self.count = count;
         self.alg = alg;
-    
+
         PreferencesWindow.setObjectName("PreferencesWindow")
         PreferencesWindow.resize(470, 500)
         PreferencesWindow.setMinimumSize(QtCore.QSize(470, 500))

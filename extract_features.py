@@ -3,7 +3,7 @@ import numpy as np
 import scipy
 import scipy._lib._ccallback_c
 from scipy import spatial
-import six 
+import six
 from six.moves import cPickle as pickle
 import random
 import os
@@ -15,7 +15,7 @@ def GaussianBlur(img):
 def FaceRecognizion(img):
     gray_img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     face_cascade = cv2.CascadeClassifier("data/haarcascade_frontalface_alt.xml")
-    faces = face_cascade.detectMultiScale(img,scaleFactor=1.1,minNeighbors=5);
+    faces = face_cascade.detectMultiScale(gray_img,scaleFactor=1.1,minNeighbors=5);
 
     for x,y,w,h in faces:
         if ( (h-y)*(w*x) > 2500 ):
@@ -32,14 +32,14 @@ def read_image(image_path):
 # Feature extractor
 def extract_features(img, vector_size=32):
     img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    
+
     try:
         # Using KAZE, cause SIFT, ORB and other was moved to additional module
         # which is adding addtional pain during install
         alg = cv2.ORB_create()
         # Dinding image keypoints
         kps = alg.detect(img)
-        # Getting first 32 of them. 
+        # Getting first 32 of them.
         # Number of keypoints is varies depend on image size and color pallet
         # Sorting them based on keypoint response value(bigger is better)
         kps = sorted(kps, key=lambda x: -x.response)[:vector_size]
@@ -63,31 +63,31 @@ def extract_features(img, vector_size=32):
         return None
 
     return dsc
- 
+
 
 def batch_extractor(images_path, pickled_db_path="features.pck"):
     files = [os.path.join(images_path, p) for p in sorted(os.listdir(images_path))]
 
     result = {}
     for f in files:
-        print (f'Extracting features from image {f}',end=" ") 
+        print (f'Extracting features from image {f}')
         img = read_image(f)
-        
+
         if img is None:
             print('--- Error ---')
             continue
 
-        name = f.split('/')[-1].lower()
+        name = f.split('/')[-1]
         result[name] = extract_features(img)
         # print(result[name].shape)
         print('--- Extracting success ---')
-        
+
     # saving all our feature vectors in pickled file
     with open(pickled_db_path, 'wb') as fp:
         pickle.dump(result, fp)
 
 def run():
-    images_path = 'PINS/pins_shakira'
+    images_path = 'images/train'
     files = [os.path.join(images_path, p) for p in sorted(os.listdir(images_path))]
     batch_extractor(images_path)
 

@@ -13,9 +13,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_PreferencesWindow(object):
     count = 6
     alg = "Distance Euclidean"
-    
+
     def setupUi(self, PreferencesWindow):
-    
+
         PreferencesWindow.setObjectName("PreferencesWindow")
         PreferencesWindow.resize(470, 500)
         PreferencesWindow.setMinimumSize(QtCore.QSize(470, 500))
@@ -84,5 +84,3 @@ class Ui_PreferencesWindow(object):
         self.algorithm.setItemText(0, _translate("PreferencesWindow", "Distance Euclidean"))
         self.algorithm.setItemText(1, _translate("PreferencesWindow", "Cosine Similarity"))
         self.apply_btn.setText(_translate("PreferencesWindow", "Apply"))
-
-

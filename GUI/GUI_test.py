@@ -51,8 +51,7 @@ def extract_features(img, vector_size=32):
     return dsc
 
 class Matcher(object):
-
-    def __init__(self, pickled_db_path="features.pck"):
+    def __init__(self, pickled_db_path="../features.pck"):
         with open(pickled_db_path,'rb') as fp:
             self.data = pickle.load(fp)
         self.names = []
@@ -67,7 +66,7 @@ class Matcher(object):
         # getting cosine distance between search image and images database
         v = vector.reshape(1,-1)
         return scipy.spatial.distance.cdist(self.matrix, v, 'cosine').reshape(-1)
-    
+
     def edist(self, vector):
         # Menggunakan jarak euclidean
         vd = []
@@ -95,7 +94,7 @@ def run(sample_path, train_path, alg, count):
     files = [os.path.join(train_path, p) for p in sorted(os.listdir(train_path))]
     # getting 3 random images
     # sample = random.sample(files, 3)
-    ma = Matcher(train_path + '/features.pck')
+    ma = Matcher('../features.pck')
 
     names, match = ma.match(sample_path, alg, topn=count)
 

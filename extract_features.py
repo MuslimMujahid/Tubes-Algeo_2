@@ -3,7 +3,7 @@ import numpy as np
 import scipy
 import scipy._lib._ccallback_c
 from scipy import spatial
-import six 
+import six
 from six.moves import cPickle as pickle
 import random
 import os
@@ -32,19 +32,19 @@ def read_image(image_path):
 # Feature extractor
 def extract_features(img, vector_size=32):
     img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    
+
     orb = cv2.ORB_create()
     kps = orb.detect(img,None)
     kps = sorted(kps, key=lambda x: -x.response)[:vector_size]
     kps, dsc = orb.compute(img,kps)
-    
+
     if dsc is None:
         return None
-        
+
     dsc = dsc.flatten()
     needed_size = (vector_size * 64)
     if dsc.size < needed_size:
-        dsc = np.concatenate([dsc, np.zeros(needed_size - dsc.size)]) 
+        dsc = np.concatenate([dsc, np.zeros(needed_size - dsc.size)])
 
     return dsc
 
@@ -54,12 +54,12 @@ def batch_extractor(images_path, pickled_db_path="features.pck"):
 
     result = {}
     for f in files:
-        print (f'Extracting features from image {f}',end=" ") 
+        print (f'Extracting features from image {f}',end=" ")
         img = read_image(f)
-        name = f.split('/')[-1].lower()
+        name = f.split('/')[-1]
         result[name] = extract_features(img)
         print('--- Extracting success ---')
-        
+
     # saving all our feature vectors in pickled file
     with open(pickled_db_path, 'wb') as fp:
         pickle.dump(result, fp)

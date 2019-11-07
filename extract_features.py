@@ -36,7 +36,8 @@ def extract_features(img, vector_size=32):
     try:
         # Using KAZE, cause SIFT, ORB and other was moved to additional module
         # which is adding addtional pain during install
-        alg = cv2.ORB_create()
+        # alg = cv2.ORB_create()
+        alg = cv2.KAZE_create()
         # Dinding image keypoints
         kps = alg.detect(img)
         # Getting first 32 of them. 
@@ -77,7 +78,7 @@ def batch_extractor(images_path, pickled_db_path="features.pck"):
             print('--- Error ---')
             continue
 
-        name = f.split('/')[-1].lower()
+        name = f.split('/')[-1]
         result[name] = extract_features(img)
         # print(result[name].shape)
         print('--- Extracting success ---')
@@ -87,7 +88,7 @@ def batch_extractor(images_path, pickled_db_path="features.pck"):
         pickle.dump(result, fp)
 
 def run():
-    images_path = 'PINS/pins_shakira'
+    images_path = 'images/train/'
     files = [os.path.join(images_path, p) for p in sorted(os.listdir(images_path))]
     batch_extractor(images_path)
 

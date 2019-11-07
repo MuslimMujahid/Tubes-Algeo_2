@@ -9,44 +9,34 @@ import random
 import os
 import matplotlib.pyplot as plt
 
-def GaussianBlur(img):
-    img = cv2.GaussianBlur(img,(7,7),0)
-    return img
-
-def FaceRecognizion(img):
-    gray_img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+def FaceRecognition(img):
     face_cascade = cv2.CascadeClassifier("../data/haarcascade_frontalface_alt.xml")
-    faces = face_cascade.detectMultiScale(gray_img,scaleFactor=1.1,minNeighbors=6)
-
+    faces = face_cascade.detectMultiScale(img,scaleFactor=1.05,minNeighbors=5);
 
     for x,y,w,h in faces:
         if ( (h-y)*(w*x) > 2500 ):
-            img = img[y+60:y+h,x+20:x+w-20]
-            # img = cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255),2)
-    return img
-
-def read_image(image_path):
-    img = cv2.imread(image_path,cv2.IMREAD_COLOR)
-    img = FaceRecognizion(img)
-    img = GaussianBlur(img)
-    return img
+            img = img[y:y+h,x:x+w];
+    return img;
 
 # Feature extractor
 def extract_features(img, vector_size=32):
-    img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    img = cv2.imread(image_path,cv2.IMREAD_GRAYSCALE)
+    img = FaceRecognition(img)
+    img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
 
-    orb = cv2.ORB_create()
-    kps = orb.detect(img,None)
-    kps = sorted(kps, key=lambda x: -x.response)[:vector_size]
-    kps, dsc = orb.compute(img,kps)
+    try:
+        alg = cv2.KAZE_create()
+        kps = alg.detect(img)
+        kps = sorted(kps, key=lambda x: -x.response)[:vector_size]
+        kps, dsc = alg.compute(img,kps)
+        dsc = dsc.flatten()
+        needed_size = (vector_size * 64)
+        if dsc.size < needed_size:
+            dsc = np.concatenate([dsc, np.zeros(needed_size - dsc.size)])
 
-    if dsc is None:
+    except cv2.error as e:
+        print ('Error: ', e)
         return None
-
-    dsc = dsc.flatten()
-    needed_size = (vector_size * 64)
-    if dsc.size < needed_size:
-        dsc = np.concatenate([dsc, np.zeros(needed_size - dsc.size)])
 
     return dsc
 
@@ -57,7 +47,9 @@ class Matcher(object):
         self.names = []
         self.matrix = []
         for k, v in self.data.items():
-            self.names.append(k)
+            ns = k.split('-')
+            self.size = ns[1].split('x')
+            self.names.append(ns[0])
             self.matrix.append(v)
         self.matrix = np.array(self.matrix)
         self.names = np.array(self.names)

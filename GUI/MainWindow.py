@@ -9,7 +9,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
-import GUI_test
+import Matcher
 import os
 
 class Ui_MainWindow(object):
@@ -260,7 +260,7 @@ class Ui_MainWindow(object):
         self.main_result_name.setText(_translate("MainWindow", self.result_image[self.result_idx]))
 
     def mainRun(self):
-        self.result_image,self.mat = GUI_test.run(self.input_image, self.train_folder, self.MAlg, self.MCount)
+        self.result_image,self.mat = Matcher.run(self.input_image, self.train_folder, self.MAlg, self.MCount)
         self.update_image()
 
 

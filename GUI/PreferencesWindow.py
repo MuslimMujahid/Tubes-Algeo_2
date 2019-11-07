@@ -11,7 +11,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_PreferencesWindow(object):
+    count = 6
+    alg = "Distance Euclidean"
+    
     def setupUi(self, PreferencesWindow):
+    
         PreferencesWindow.setObjectName("PreferencesWindow")
         PreferencesWindow.resize(470, 500)
         PreferencesWindow.setMinimumSize(QtCore.QSize(470, 500))
@@ -45,7 +49,7 @@ class Ui_PreferencesWindow(object):
         self.apply_btn = QtWidgets.QPushButton(self.centralwidget)
         self.apply_btn.setGeometry(QtCore.QRect(340, 430, 89, 25))
         self.apply_btn.setObjectName("apply_btn")
-        self.apply_btn.pressed.connect(PreferencesWindow.close)
+        self.apply_btn.pressed.connect(self.apply)
 
         PreferencesWindow.setCentralWidget(self.centralwidget)
 
@@ -64,6 +68,13 @@ class Ui_PreferencesWindow(object):
         self.algorithm.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(PreferencesWindow)
 
+    def apply(self):
+        self.count_result.setValue(self.count_result.value())
+        self.count = self.count_result.value()
+        self.alg = str(self.algorithm.currentText())
+        self.algorithm.setCurrentIndex(self.algorithm.currentIndex())
+        PreferencesWindow.close
+
     def retranslateUi(self, PreferencesWindow):
         _translate = QtCore.QCoreApplication.translate
         PreferencesWindow.setWindowTitle(_translate("PreferencesWindow", "Preferences"))
@@ -74,12 +85,4 @@ class Ui_PreferencesWindow(object):
         self.algorithm.setItemText(1, _translate("PreferencesWindow", "Cosine Similarity"))
         self.apply_btn.setText(_translate("PreferencesWindow", "Apply"))
 
-
-def runPref():
-    import sys
-    PreferencesWindow = QtWidgets.QWidgetAction()
-    ui = Ui_PreferencesWindow()
-    ui.setupUi(PreferencesWindow)
-    PreferencesWindow.show()
-    sys.exit(app.exec_())
 

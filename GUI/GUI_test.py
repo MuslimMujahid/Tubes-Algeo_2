@@ -16,7 +16,8 @@ def GaussianBlur(img):
 def FaceRecognizion(img):
     gray_img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     face_cascade = cv2.CascadeClassifier("../data/haarcascade_frontalface_alt.xml")
-    faces = face_cascade.detectMultiScale(img,scaleFactor=1.1,minNeighbors=6);
+    faces = face_cascade.detectMultiScale(gray_img,scaleFactor=1.1,minNeighbors=6)
+
 
     for x,y,w,h in faces:
         if ( (h-y)*(w*x) > 2500 ):
@@ -94,8 +95,7 @@ def run(sample_path, train_path, alg, count):
     files = [os.path.join(train_path, p) for p in sorted(os.listdir(train_path))]
     # getting 3 random images
     # sample = random.sample(files, 3)
-
-    ma = Matcher('features.pck')
+    ma = Matcher(train_path + '/features.pck')
 
     names, match = ma.match(sample_path, alg, topn=count)
 

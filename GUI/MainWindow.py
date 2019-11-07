@@ -252,7 +252,11 @@ class Ui_MainWindow(object):
             self.thumb_image_5.setPixmap(QtGui.QPixmap(os.path.join(self.train_folder, self.result_image[self.result_idx + 5])))
         else:
             self.thumb_image_5.setPixmap(QtGui.QPixmap("Blank.jpg"))
-        self.match_rating.setText(_translate("MainWindow", "Match: {:.3f}".format(1 - self.mat[self.result_idx])))
+        if self.MAlg == "Cosine Similarity":
+            self.match_rating.setText(_translate("MainWindow", "Match: {:.3f}%".format((1 - self.mat[self.result_idx])*100)))
+        if self.MAlg == "Distance Euclidean":
+            self.match_rating.setText(_translate("MainWindow", "Distance: {:.3f}".format(self.mat[self.result_idx])))
+
         self.main_result_name.setText(_translate("MainWindow", self.result_image[self.result_idx]))
 
     def mainRun(self):
@@ -320,6 +324,8 @@ class Ui_PreferencesWindow(object):
 
         self.count_result = QtWidgets.QSpinBox(self.centralwidget)
         self.count_result.setGeometry(QtCore.QRect(290, 120, 140, 26))
+
+        self.count_result.setValue(self.count)
         self.count_result.setObjectName("count_result")
 
         self.count_result_label = QtWidgets.QLabel(self.centralwidget)
@@ -365,8 +371,8 @@ class Ui_PreferencesWindow(object):
 
     def apply(self):
         Ui_MainWindow.MAlg = self.algorithm.currentText()
-        print(self.algorithm.currentText())
-        print(Ui_MainWindow.MAlg)
+        Ui_MainWindow.MCount = self.count_result.value()
+
 
     def retranslateUi(self, PreferencesWindow):
         _translate = QtCore.QCoreApplication.translate

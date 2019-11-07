@@ -15,7 +15,7 @@ def GaussianBlur(img):
 
 def FaceRecognizion(img):
     gray_img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    face_cascade = cv2.CascadeClassifier("../data/haarcascade_frontalface_alt.xml")
+    face_cascade = cv2.CascadeClassifier("data/haarcascade_frontalface_alt.xml")
     faces = face_cascade.detectMultiScale(img,scaleFactor=1.1,minNeighbors=5);
 
     for x,y,w,h in faces:
@@ -32,20 +32,36 @@ def read_image(image_path):
 
 # Feature extractor
 def extract_features(img, vector_size=32):
+    # image = cv2.imread(image_path)
     img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    
-    orb = cv2.ORB_create()
-    kps = orb.detect(img,None)
-    kps = sorted(kps, key=lambda x: -x.response)[:vector_size]
-    kps, dsc = orb.compute(img,kps)
-    
-    if dsc is None:
+    try:
+        # Using KAZE, cause SIFT, ORB and other was moved to additional module
+        # which is adding addtional pain during install
+        alg = cv2.ORB_create()
+        # Dinding image keypoints
+        kps = alg.detect(img)
+        # Getting first 32 of them. 
+        # Number of keypoints is varies depend on image size and color pallet
+        # Sorting them based on keypoint response value(bigger is better)
+        kps = sorted(kps, key=lambda x: -x.response)[:vector_size]
+        # computing descriptors vector
+        kps, dsc = alg.compute(img, kps)
+        # Flatten all of them in one big vector - our feature vector
+
+        if dsc is None:
+            dsc = np.zeros(32)
+
+        dsc = dsc.flatten()
+        # Making descriptor of same size
+        # Descriptor vector size is 64
+        needed_size = (vector_size * 64)
+        if dsc.size < needed_size:
+            # if we have less the 32 descriptors then just adding zeros at the
+            # end of our feature vector
+            dsc = np.concatenate([dsc, np.zeros(needed_size - dsc.size)])
+    except cv2.error as e:
+        print ('Error: ', e)
         return None
-        
-    dsc = dsc.flatten()
-    needed_size = (vector_size * 64)
-    if dsc.size < needed_size:
-        dsc = np.concatenate([dsc, np.zeros(needed_size - dsc.size)]) 
 
     return dsc
 
@@ -78,14 +94,11 @@ class Matcher(object):
 
 def show_img(path):
     img = cv2.imread(path)
-    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    # plt.imshow(img)
     cv2.imshow(path,img)
-    print(img.shape)
 
 def run():
-    sample_path = 'images/sample/'
-    train_path = 'images/train/'
+    sample_path = 'PINS/pins_shakira'
+    train_path = 'PINS/pins_shakira'
     sample = [os.path.join(sample_path, p) for p in sorted(os.listdir(sample_path))]
     train = [os.path.join(train_path, p) for p in sorted(os.listdir(train_path))]
 
@@ -102,9 +115,7 @@ def run():
             # more they similar, thus we subtruct it from 1 to get match value
             print (f'Match {(1-match[i])} - {names[i]} - {i+1}') 
             show_img(s)
-            show_img(os.path.join(train_path, names[i]))
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
+            show_img(os.path.join(train_path, names[i].split('\\')[-1]))
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 

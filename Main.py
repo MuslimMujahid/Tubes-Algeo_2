@@ -16,7 +16,7 @@ class Ui_MainWindow(object):
     input_image = "Blank.jpg"
     result_idx = 0
     result_image = []
-    train_folder = ""
+    train_folder = "images/train/"
     mat =[]
     MCount = 6
     MAlg = 'Distance Euclidean'
@@ -261,6 +261,7 @@ class Ui_MainWindow(object):
 
     def mainRun(self):
         self.result_image,self.mat = Matcher.run(self.input_image, self.train_folder, self.MAlg, self.MCount)
+        self.result_idx = 0
         self.update_image()
 
 
@@ -324,7 +325,8 @@ class Ui_PreferencesWindow(object):
 
         self.count_result = QtWidgets.QSpinBox(self.centralwidget)
         self.count_result.setGeometry(QtCore.QRect(290, 120, 140, 26))
-
+        self.count_result.setMinimum(1)
+        self.count_result.setMaximum(8000)
         self.count_result.setValue(self.count)
         self.count_result.setObjectName("count_result")
 
